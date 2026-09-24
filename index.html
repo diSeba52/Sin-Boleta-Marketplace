@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIN BOLETA™ — Pero con descuento.</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Russo One & Oxanium -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;600;700;800&family=Russo+One&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            bg: '#f4f4f5',
+                            card: '#ffffff',
+                            dark: '#000000',
+                            muted: '#71717a',
+                            accent: '#18181b',
+                            badge: '#09090b',
+                            border: '#e4e4e7',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Oxanium', 'sans-serif'],
+                        display: ['"Russo One"', 'sans-serif'],
+                        oxanium: ['Oxanium', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f4f4f5;
+            color: #09090b;
+            font-family: 'Oxanium', sans-serif;
+            font-weight: 600;
+        }
+
+        .font-display {
+            font-family: 'Russo One', sans-serif;
+        }
+
+        .font-oxanium {
+            font-family: 'Oxanium', sans-serif;
+        }
+
+        .barcode-bg {
+            background: repeating-linear-gradient(
+                90deg,
+                #000 0px,
+                #000 2px,
+                transparent 2px,
+                transparent 4px,
+                #000 4px,
+                #000 7px,
+                transparent 7px,
+                transparent 9px
+            );
+        }
+
+        .card-hover {
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.12);
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            right: 24px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid #ffffff;
+        }
+
+        /* Animación de ojo reactivo */
+        .pupil {
+            transition: transform 0.15s ease-out;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f4f4f5;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d4d4d8;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a1a1aa;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-black selection:text-white font-oxanium font-semibold">
+
+    <div class="bg-black text-white text-xs py-1.5 px-4 text-center font-semibold tracking-wide flex justify-between items-center px-6">
+        <span class="hidden sm:inline">⚠️ Todos los productos incluyen 0 días de garantía y 100% de historias sospechosas.</span>
+        <span class="mx-auto sm:mx-0">SIN BOLETA™ — <span class="font-oxanium font-semibold">Pero con descuento.</span></span>
+        <span class="hidden md:inline text-zinc-400">¿Dudas? No preguntes.</span>
+    </div>
+
+    <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-zinc-200 transition-all">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-36 flex items-center justify-between gap-4">
+            
+            <!-- Logo ampliado solo imagen -->
+            <a href="#" onclick="resetFilters()" class="flex items-center group flex-shrink-0">
+                <img src="logo.png" 
+                     alt="SIN BOLETA™ — Pero con descuento." 
+                     class="w-32 h-32 object-contain hover:opacity-95 transition-opacity py-1">
+            </a>
+
+            <!-- Search Bar in Header -->
+            <div class="hidden md:flex flex-1 max-w-xl mx-4">
+                <div class="relative w-full flex items-center">
+                    <input type="text" id="headerSearch" onkeyup="handleSearch(event)" placeholder="¿Qué estás buscando y por qué?" 
+                        class="w-full bg-zinc-100 border border-zinc-200 rounded-full py-2.5 pl-11 pr-24 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 text-zinc-400 text-sm"></i>
+                    <button onclick="triggerSearch('headerSearch')" class="absolute right-1.5 bg-black hover:bg-zinc-800 text-white text-xs px-4 py-1.5 rounded-full font-bold transition-all">
+                        Buscar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Header Actions con Dropdown de Categorías -->
+            <div class="flex items-center gap-3">
+                <div class="relative hidden lg:block">
+                    <button id="categoryDropdownBtn" onclick="toggleCategoryDropdown()" class="flex items-center gap-1 text-sm font-bold text-zinc-700 hover:text-black px-3 py-2 rounded-lg hover:bg-zinc-100 transition-all">
+                        <span>Categorías</span>
+                        <i id="dropdownChevron" class="fa-solid fa-chevron-down text-xs ml-1 transition-transform"></i>
+                    </button>
+
+                    <!-- Desplegable de Categorías -->
+                    <div id="categoryDropdown" class="absolute left-0 mt-2 w-56 bg-white border border-zinc-200 rounded-2xl shadow-xl py-2 hidden z-50 transition-all">
+                        <div id="dropdownCategoriesList" class="space-y-1">
+                            <!-- Inyectado por Javascript -->
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="openModal('publishModal')" class="bg-black hover:bg-zinc-800 text-white font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-sm flex items-center gap-2 transition-all transform active:scale-95">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                    <span>Publicar producto</span>
+                </button>
+
+                <button onclick="toggleFavoritesView()" class="relative p-2.5 text-zinc-700 hover:text-black hover:bg-zinc-100 rounded-xl transition-all" title="Favoritos">
+                    <i class="fa-regular fa-bookmark text-lg"></i>
+                    <span id="favCountBadge" class="absolute -top-1 -right-1 bg-black text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center hidden">0</span>
+                </button>
+
+                <button onclick="openCartModal()" class="relative p-2.5 text-zinc-700 hover:text-black hover:bg-zinc-100 rounded-xl transition-all" title="Carrito de hallazgos">
+                    <i class="fa-solid fa-cart-shopping text-lg"></i>
+                    <span id="cartCountBadge" class="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center hidden">0</span>
+                </button>
+
+                <div class="h-6 w-px bg-zinc-200 hidden sm:block"></div>
+
+                <button onclick="showToast('Modo incógnito activado por defecto 😎')" class="hidden sm:flex items-center gap-2 text-xs font-bold text-zinc-700 hover:text-black">
+                    <div class="w-7 h-7 rounded-full bg-zinc-200 flex items-center justify-center font-bold text-xs">
+                        <i class="fa-solid fa-user-secret"></i>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-12">
+        
+        <section class="relative bg-white rounded-3xl p-6 sm:p-10 md:p-12 border border-zinc-200 shadow-sm overflow-hidden">
+            <div class="absolute inset-0 opacity-[0.03] pointer-events-none" style="background-image: radial-gradient(#000 1px, transparent 1px); background-size: 16px 16px;"></div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 bg-zinc-100 rounded-full border border-zinc-200 text-xs font-bold text-zinc-800">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        342 objetos aparecieron en las últimas 24 hrs
+                    </div>
+
+                    <h1 class="font-display text-3xl sm:text-5xl lg:text-6xl text-black tracking-tight leading-none">
+                        Encuentra eso que no sabías que necesitabas.
+                    </h1>
+
+                    <p class="text-base sm:text-lg text-zinc-600 max-w-xl font-semibold leading-relaxed">
+                        Cosas usadas. Precios sospechosamente buenos. <br class="hidden sm:inline">Cero preguntas innecesarias.
+                    </p>
+
+                    <div class="pt-2">
+                        <div class="relative max-w-xl flex flex-col sm:flex-row gap-2">
+                            <div class="relative flex-1">
+                                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400"></i>
+                                <input type="text" id="heroSearch" onkeyup="handleSearch(event)" placeholder="¿Qué estás buscando? ¿O qué apareció?" 
+                                    class="w-full bg-zinc-100 border border-zinc-300 rounded-2xl py-3.5 pl-11 pr-4 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all shadow-inner">
+                            </div>
+                            <button onclick="triggerSearch('heroSearch')" class="bg-black hover:bg-zinc-800 text-white font-bold text-sm px-6 py-3.5 rounded-2xl transition-all shadow-lg shadow-black/10 flex items-center justify-center gap-2">
+                                <span>Buscar hallazgos</span>
+                                <i class="fa-solid fa-arrow-right text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5 flex justify-center relative">
+                    <div class="relative w-full max-w-sm sm:max-w-md">
+                        
+                        <div class="absolute -top-6 right-4 sm:right-8 bg-white border border-zinc-300 rounded-2xl px-4 py-2.5 shadow-lg z-20 speech-bubble transform rotate-1">
+                            <p class="text-xs font-bold text-black font-display tracking-tight">
+                                Buenas ofertas... <span class="text-zinc-500 italic font-oxanium font-semibold">malas decisiones.</span>
+                            </p>
+                        </div>
+
+                        <div class="bg-zinc-900 text-white rounded-3xl p-6 shadow-2xl relative overflow-hidden border border-zinc-800 transform rotate-1 hover:rotate-0 transition-transform duration-300">
+                            <div class="aspect-video bg-zinc-800 rounded-2xl mb-4 overflow-hidden relative flex items-center justify-center group">
+                                <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=600&q=80" alt="Paquete Sin Boleta" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-500">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                                
+                                <div class="absolute bg-zinc-200 text-black font-oxanium font-bold text-xs uppercase px-8 py-1 transform -rotate-12 shadow-md border border-black tracking-widest border-dashed">
+                                    SIN BOLETA™ TAPE
+                                </div>
+
+                                <div class="absolute bottom-3 left-3 right-3 flex justify-between items-end text-white">
+                                    <div>
+                                        <span class="text-[10px] uppercase font-bold text-zinc-400 block">Lote Misterioso #409</span>
+                                        <span class="font-display text-sm">Caja cerrada procedencia ignorada</span>
+                                    </div>
+                                    <span class="bg-white text-black font-extrabold text-xs px-2.5 py-1 rounded-md">$18.900</span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between text-xs text-zinc-400 font-semibold">
+                                <span>ENVÍO: Discreto</span>
+                                <span class="text-emerald-400 font-bold">● LISTO PARA DESPACHO</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="space-y-4">
+            <div class="flex items-center justify-between">
+                <h2 class="font-display text-xl sm:text-2xl text-black tracking-tight">Explora por categoría</h2>
+                <button onclick="filterByCategory('all')" class="text-xs font-bold text-zinc-500 hover:text-black">Ver todas →</button>
+            </div>
+
+            <div id="categoriesContainer" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+                <!-- Inyectado por Javascript -->
+            </div>
+        </section>
+
+        <section class="space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-zinc-200 pb-4">
+                <div>
+                    <span class="text-xs font-bold tracking-widest text-zinc-400 uppercase">Recientemente Encontrados</span>
+                    <h2 class="font-display text-2xl sm:text-3xl text-black tracking-tight flex items-center gap-2">
+                        APARECIÓ ESTO
+                        <span class="text-xs font-oxanium bg-black text-white px-2 py-0.5 rounded-full font-bold">Nuevos</span>
+                    </h2>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-zinc-500">Filtrado por: <strong id="currentFilterLabel" class="text-black font-bold">Todos</strong></span>
+                    <button onclick="resetFilters()" class="text-xs text-red-600 hover:underline font-bold ml-2">Limpiar filtro</button>
+                </div>
+            </div>
+
+            <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                <!-- Inyectado por Javascript -->
+            </div>
+        </section>
+
+        <section class="bg-zinc-900 text-white rounded-3xl p-6 sm:p-8 space-y-6 border border-zinc-800">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <div class="inline-block bg-red-600 text-white text-[10px] font-bold uppercase px-2 py-0.5 rounded mb-2">Descuentos SOSPECHOSOS</div>
+                    <h2 class="font-display text-xl sm:text-2xl tracking-tight">Ofertas demasiado buenas para preguntar por qué</h2>
+                </div>
+                <a href="#productsGrid" onclick="filterDealsOnly()" class="text-xs font-bold bg-white text-black px-4 py-2 rounded-xl hover:bg-zinc-200 transition-all self-start sm:self-auto">
+                    Ver ofertas activas →
+                </a>
+            </div>
+
+            <div id="dealsGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                <!-- Inyectado por Javascript -->
+            </div>
+        </section>
+
+        <section class="space-y-6">
+            <div class="border-b border-zinc-200 pb-4">
+                <span class="text-xs font-bold tracking-widest text-zinc-400 uppercase">Objetos Curiosos & Misteriosos</span>
+                <h2 class="font-display text-2xl sm:text-3xl text-black tracking-tight">HALLAZGOS EXTRAÑOS</h2>
+            </div>
+
+            <div id="hallazgosGrid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Inyectado por Javascript -->
+            </div>
+        </section>
+
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+            <div class="lg:col-span-7 bg-white rounded-3xl p-6 border border-zinc-200 shadow-sm flex flex-col justify-between space-y-4">
+                <div>
+                    <h3 class="font-display text-lg text-black mb-1">Vendedores destacados</h3>
+                    <p class="text-xs text-zinc-500 font-semibold">Usuarios con alta reputación de no hacer preguntas innecesarias.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="sellersContainer">
+                    <!-- Inyectado por Javascript -->
+                </div>
+            </div>
+
+            <div class="lg:col-span-5 bg-zinc-100 rounded-3xl p-6 border border-zinc-300 flex flex-col justify-between relative overflow-hidden group">
+                <div class="space-y-3 relative z-10">
+                    <div class="w-10 h-10 bg-black text-white rounded-2xl flex items-center justify-center font-bold text-lg">
+                        <i class="fa-solid fa-box-open"></i>
+                    </div>
+                    <h3 class="font-display text-2xl text-black tracking-tight leading-tight">
+                        ¿Tienes algo que no sabes de dónde salió?
+                    </h3>
+                    <p class="text-xs sm:text-sm text-zinc-600 leading-relaxed font-semibold">
+                        No sabes qué es. Perfecto. Publícalo. Probablemente alguien lo está buscando. O probablemente no.
+                    </p>
+                </div>
+
+                <div class="pt-6 relative z-10 flex items-center justify-between">
+                    <button onclick="openModal('publishModal')" class="bg-black hover:bg-zinc-800 text-white font-bold text-xs sm:text-sm px-5 py-3 rounded-xl transition-all shadow-md flex items-center gap-2">
+                        <span>Publicar objeto</span>
+                        <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </button>
+                    <span class="font-oxanium text-[10px] text-zinc-400 uppercase tracking-widest font-bold">Todo cuenta.</span>
+                </div>
+
+                <div class="absolute bottom-0 right-0 opacity-10 w-32 h-20 barcode-bg"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-white border-t border-zinc-200 mt-16 text-zinc-600 text-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-8">
+                <div class="md:col-span-2 space-y-3">
+                    <div class="flex items-center gap-2">
+                        <img src="logo.png" alt="Logo" class="w-7 h-7 object-contain">
+                        <span class="font-display text-lg text-black">SIN BOLETA™</span>
+                    </div>
+                    <p class="text-zinc-500 text-xs max-w-sm leading-relaxed font-semibold">
+                        El marketplace de objetos con evidencia de una historia, pero sin la historia. Compras inteligentes para exploradores curiosos.
+                    </p>
+                    <p class="font-oxanium text-[10px] text-zinc-400 font-semibold">
+                        * SIN BOLETA™ es una plataforma conceptual y ficticia. Ningún producto robado o ilegal es comercializado real ni simbólicamente.
+                    </p>
+                </div>
+
+                <div>
+                    <h4 class="font-bold text-black uppercase tracking-wider text-[11px] mb-3">Plataforma</h4>
+                    <ul class="space-y-2 font-semibold">
+                        <li><a href="#" class="hover:text-black">Sobre SIN BOLETA™</a></li>
+                        <li><a href="#" class="hover:text-black">Cómo funciona</a></li>
+                        <li><a href="#" class="hover:text-black">Nivel de Sospecha</a></li>
+                        <li><a href="#" class="hover:text-black">Puntos de entrega discreta</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-bold text-black uppercase tracking-wider text-[11px] mb-3">Comunidad</h4>
+                    <ul class="space-y-2 font-semibold">
+                        <li><a href="#" onclick="openModal('publishModal')" class="hover:text-black">Vender algo raro</a></li>
+                        <li><a href="#" class="hover:text-black">Comprar sin preguntar</a></li>
+                        <li><a href="#" class="hover:text-black">Historias no verificadas</a></li>
+                        <li><a href="#" class="hover:text-black">Preguntas (Casi) Frecuentes</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-bold text-black uppercase tracking-wider text-[11px] mb-3">Legal & Redes</h4>
+                    <ul class="space-y-2 mb-4 font-semibold">
+                        <li><a href="#" class="hover:text-black">Términos sin letra chica</a></li>
+                        <li><a href="#" class="hover:text-black">Privacidad total</a></li>
+                    </ul>
+                    <div class="flex items-center gap-3 text-base text-zinc-800">
+                        <a href="#" class="hover:text-black" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" class="hover:text-black" title="TikTok"><i class="fa-brands fa-tiktok"></i></a>
+                        <a href="#" class="hover:text-black" title="X / Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-8 border-t border-zinc-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-zinc-400">
+                <p>© 2026 SIN BOLETA™ Inc. Todos los derechos reservados... o eso creemos.</p>
+                <div class="w-48 h-8 barcode-bg opacity-30 rounded"></div>
+            </div>
+        </div>
+    </footer>
+
+<!-- WIDGET ASISTENTE VIRTUAL: "EL SOSPECHOSO" (OJOS GRANDES Y SOSPECHOSOS) -->
+    <div id="assistantWidget" class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2 pointer-events-auto">
+        <!-- Ventana del Chat -->
+        <div id="assistantChatWindow" class="w-80 sm:w-96 bg-white rounded-3xl shadow-2xl border border-zinc-300 overflow-hidden hidden opacity-0 transform translate-y-4 transition-all duration-200">
+            <!-- Header del Chat -->
+            <div class="bg-black text-white p-4 flex items-center justify-between border-b border-zinc-800">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-zinc-900 rounded-full flex items-center justify-center border border-zinc-700">
+                        <!-- Mini SVG del Personaje en el Header -->
+                        <svg class="w-8 h-8" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="45" fill="black"/>
+                            <!-- Ojo Izquierdo -->
+                            <path d="M 20 40 A 13 13 0 0 0 44 40 Z" fill="white" class="assistant-eye-left" />
+                            <!-- Ojo Derecho -->
+                            <path d="M 56 40 A 13 13 0 0 0 80 40 Z" fill="white" class="assistant-eye-right" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-display text-sm leading-none">El Sospechoso</h4>
+                        <span class="text-[10px] text-emerald-400 font-semibold font-oxanium">● "Asistente" Virtual</span>
+                    </div>
+                </div>
+                <button onclick="toggleAssistant()" class="text-zinc-400 hover:text-white text-sm">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Cuerpo de Mensajes -->
+            <div id="assistantMessages" class="p-4 h-64 overflow-y-auto space-y-3 bg-zinc-50 text-xs">
+                <div class="bg-black text-white p-3 rounded-2xl rounded-tl-none font-semibold shadow-sm max-w-[85%] leading-relaxed">
+                    Psst... ¿Buscando algo raro o solo mirando? Pregúntame lo que quieras, no diré nada a nadie. 🤫
+                </div>
+            </div>
+
+            <!-- Entrada de texto -->
+            <form onsubmit="handleAssistantSubmit(event)" class="p-3 bg-white border-t border-zinc-200 flex gap-2">
+                <input type="text" id="assistantInput" placeholder="Haz tu pregunta confidencial..." 
+                    class="flex-1 bg-zinc-100 border border-zinc-200 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-black">
+                <button type="submit" class="bg-black hover:bg-zinc-800 text-white font-bold px-3 py-2 rounded-xl text-xs transition-all">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
+
+        <!-- Botón Flotante Reactivo -->
+        <button onclick="toggleAssistant()" id="assistantButton" class="group bg-black text-white p-3 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center border-2 border-white relative">
+            <span class="absolute -top-1 -right-1 bg-red-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full animate-bounce">!</span>
+            <!-- Personaje SVG Completo con Ojos Grandes y Semicirculares -->
+            <svg id="peepingCharacterSvg" class="w-14 h-14" viewBox="0 0 100 100">
+                <!-- Cabeza -->
+                <circle cx="50" cy="45" r="38" fill="black"/>
+                
+                <!-- Ojos Blancos Semicirculares MÁS GRANDES (Circunferencia ampliada) -->
+                <g id="eyesContainer" class="transition-transform duration-100 origin-center">
+                    <!-- Ojo Izquierdo (Semicírculo grande, separado) -->
+                    <path id="leftEyePath" d="M 8 40 A 21 21 0 0 0 46 40 Z" fill="white" />
+                    
+                    <!-- Ojo Derecho (Semicírculo grande, separado) -->
+                    <path id="rightEyePath" d="M 54 40 A 21 21 0 0 0 92 40 Z" fill="white" />
+                </g>
+
+                <!-- Manos sigilosas asomándose -->
+                <path d="M 12 72 Q 22 56 32 66" stroke="black" stroke-width="6" stroke-linecap="round" fill="none" />
+                <path d="M 88 72 Q 78 56 68 66" stroke="black" stroke-width="6" stroke-linecap="round" fill="none" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- MODALES EXISTENTES -->
+    <div id="productModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-200">
+        <div class="bg-white rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl border border-zinc-200 transform scale-95 transition-transform duration-200" id="productModalCard">
+            <div class="p-4 border-b border-zinc-100 flex justify-between items-center bg-zinc-50">
+                <span id="modalBadge" class="bg-black text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                    Procedencia: no preguntamos
+                </span>
+                <button onclick="closeModal('productModal')" class="w-8 h-8 rounded-full bg-zinc-200 hover:bg-zinc-300 flex items-center justify-center text-zinc-700">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="aspect-square bg-zinc-100 rounded-2xl overflow-hidden relative border border-zinc-200">
+                    <img id="modalImage" src="" alt="Producto" class="w-full h-full object-cover">
+                    <div id="modalSuspicionLevel" class="absolute bottom-3 left-3 bg-white/95 backdrop-blur text-xs font-bold px-3 py-1.5 rounded-xl shadow-md border border-zinc-200">
+                        🟡 Sospecha: Moderada
+                    </div>
+                </div>
+
+                <div class="space-y-4 flex flex-col justify-between">
+                    <div>
+                        <span id="modalCategory" class="text-xs font-bold text-zinc-400 uppercase tracking-widest">CATEGORÍA</span>
+                        <h3 id="modalTitle" class="font-display text-2xl text-black leading-tight mt-1">Cámara Canon</h3>
+                        <div id="modalPrice" class="font-display text-3xl text-black mt-2">$40.000</div>
+                        
+                        <div class="mt-4 space-y-2 text-xs text-zinc-600 bg-zinc-50 p-3 rounded-xl border border-zinc-200 font-semibold">
+                            <div><strong>Estado:</strong> <span id="modalState">8/10</span></div>
+                            <div><strong>Ubicación:</strong> <span id="modalLocation">Santiago</span></div>
+                            <div><strong>Vendedor:</strong> <span id="modalSeller" class="font-bold text-black">ElPanaRetro</span></div>
+                        </div>
+
+                        <div class="mt-4">
+                            <h4 class="text-xs font-bold text-zinc-900 uppercase tracking-wider mb-1">Historia / Detalle del objeto:</h4>
+                            <p id="modalDescription" class="text-xs text-zinc-600 italic bg-amber-50 border border-amber-200 p-3 rounded-xl font-semibold">
+                                "Funciona, prende y toma fotografías. No sabemos por qué dice 'NO VENDER' escrito con plumón en la parte inferior."
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 space-y-2">
+                        <button id="modalAddToCartBtn" onclick="addToCartFromModal()" class="w-full bg-black hover:bg-zinc-800 text-white font-bold text-sm py-3 rounded-xl transition-all shadow-md flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-cart-plus"></i>
+                            <span>Añadir al carrito sin preguntar</span>
+                        </button>
+                        <button onclick="closeModal('productModal')" class="w-full bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-bold text-xs py-2.5 rounded-xl transition-all">
+                            Seguir mirando objetos
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="publishModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-200">
+        <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-zinc-200 p-6 space-y-4">
+            <div class="flex justify-between items-center border-b border-zinc-100 pb-3">
+                <div>
+                    <h3 class="font-display text-xl text-black">Publicar objeto misterioso</h3>
+                    <p class="text-xs text-zinc-500 font-semibold">Sin boleta, sin factura, sin juzgar.</p>
+                </div>
+                <button onclick="closeModal('publishModal')" class="w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form onsubmit="handlePublishForm(event)" class="space-y-3 text-xs font-semibold">
+                <div>
+                    <label class="block font-bold text-zinc-700 mb-1">¿Qué crees que es? (Nombre sugerido)</label>
+                    <input type="text" required placeholder="Ej: Nintendo DS con juego atascado" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-zinc-700 mb-1">Precio sugerido ($ CLP)</label>
+                        <input type="number" required placeholder="25000" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-zinc-700 mb-1">Nivel de Misterio</label>
+                        <select class="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black">
+                            <option>🟢 Bajo - Sé de dónde salió</option>
+                            <option selected>🟡 Moderado - Lo encontré en el entretecho</option>
+                            <option>🔴 Alto - Apareció de la nada hoy en la mañana</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-zinc-700 mb-1">Categoría asignada</label>
+                    <select id="publishCategorySelect" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black">
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-zinc-700 mb-1">Historia o curiosidad (Sin explicaciones profundas)</label>
+                    <textarea rows="3" placeholder="Ej: Prende luz roja cuando hay Luna Llena. Fuera de eso funciona perfecto." class="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"></textarea>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-zinc-700 mb-1">Badge de advertencia</label>
+                    <select class="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black">
+                        <option>Procedencia: no preguntamos</option>
+                        <option>Boleta: tampoco preguntamos</option>
+                        <option>Estado: funciona... creemos</option>
+                    </select>
+                </div>
+
+                <div class="pt-2 flex gap-2">
+                    <button type="submit" class="flex-1 bg-black text-white font-bold py-3 rounded-xl text-sm hover:bg-zinc-800 transition-all">
+                        Lanzar a la plataforma →
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="cartModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex justify-end hidden opacity-0 transition-opacity duration-200">
+        <div class="bg-white w-full max-w-md h-full shadow-2xl p-6 flex flex-col justify-between transform translate-x-full transition-transform duration-300" id="cartModalContent">
+            <div>
+                <div class="flex justify-between items-center border-b border-zinc-200 pb-4">
+                    <h3 class="font-display text-xl text-black flex items-center gap-2">
+                        <span>Carrito de Hallazgos</span>
+                        <span id="cartItemCount" class="text-xs bg-black text-white px-2 py-0.5 rounded-full font-bold">0</span>
+                    </h3>
+                    <button onclick="closeModal('cartModal')" class="w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div id="cartItemsList" class="py-4 space-y-3 overflow-y-auto max-h-[60vh]">
+                </div>
+            </div>
+
+            <div class="border-t border-zinc-200 pt-4 space-y-3">
+                <div class="flex justify-between items-center font-display text-lg">
+                    <span>Total sin factura:</span>
+                    <span id="cartTotalPrice">$0</span>
+                </div>
+                <button onclick="checkoutCart()" class="w-full bg-black hover:bg-zinc-800 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-md flex items-center justify-center gap-2">
+                    <span>Proceder al pago discreto</span>
+                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-6 right-6 z-50 bg-black text-white px-4 py-3 rounded-2xl shadow-xl flex items-center gap-3 border border-zinc-800 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <i class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toastMessage" class="text-xs font-bold">Acción realizada exitosamente</span>
+    </div>
+
+    <script>
+        const categories = [
+            { id: 'electronica', name: 'Electrónica', icon: 'fa-laptop' },
+            { id: 'hogar', name: 'Hogar', icon: 'fa-house' },
+            { id: 'ropa', name: 'Ropa', icon: 'fa-shirt' },
+            { id: 'coleccionables', name: 'Coleccionables', icon: 'fa-star' },
+            { id: 'videojuegos', name: 'Videojuegos', icon: 'fa-gamepad' },
+            { id: 'herramientas', name: 'Herramientas', icon: 'fa-wrench' },
+            { id: 'muebles', name: 'Muebles', icon: 'fa-chair' },
+            { id: 'quien-sabe', name: 'Quién sabe', icon: 'fa-circle-question', highlight: true }
+        ];
+
+        const products = [
+            {
+                id: 1,
+                name: 'Consola PlayStation 1',
+                price: 45000,
+                category: 'videojuegos',
+                badge: 'Procedencia: no preguntamos',
+                state: 'Usado - Funciona',
+                location: 'Santiago',
+                image: 'https://images.unsplash.com/photo-1507457379470-08b800bebc67?auto=format&fit=crop&w=500&q=80',
+                seller: 'ElPanaRetro',
+                sellerRating: '4.8 (124)',
+                sellerAvatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80',
+                suspicion: '🟡 Moderado',
+                description: 'Prende a la primera si la pones de lado. Incluye un CD grabado marcando "FINAL 100%".'
+            },
+            {
+                id: 2,
+                name: 'Monitor Samsung SyncMaster CRT',
+                price: 25000,
+                category: 'electronica',
+                badge: 'Boleta: tampoco preguntamos',
+                state: 'Usado - Funciona (creemos)',
+                location: 'Valparaíso',
+                image: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=500&q=80',
+                seller: 'TechMejito',
+                sellerRating: '4.6 (87)',
+                sellerAvatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=100&q=80',
+                suspicion: '🟢 Bajo',
+                description: 'Emite un zumbido reconfortante estilo año 2002. Excelente pesas para tobillos si no lo usas.'
+            },
+            {
+                id: 3,
+                name: 'Cámara Canon PowerShot A480',
+                price: 60000,
+                category: 'electronica',
+                badge: 'Estado: funciona... creemos',
+                state: 'Usado - Funciona (creemos)',
+                location: 'Santiago',
+                image: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=500&q=80',
+                seller: 'LoloFotos',
+                sellerRating: '4.9 (203)',
+                sellerAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80',
+                suspicion: '🟡 Moderado',
+                description: 'Toma fotos estética y2k automáticas. Trae una tarjeta SD de 256MB con 3 fotos de un perro desconocido.'
+            },
+            {
+                id: 4,
+                name: 'Bicicleta urbana',
+                price: 70000,
+                category: 'muebles',
+                badge: 'Procedencia: no preguntamos',
+                state: 'Usado - Buen estado',
+                location: 'Concepción',
+                image: 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=500&q=80',
+                seller: 'PedaleandoChile',
+                sellerRating: '4.7 (56)',
+                sellerAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80',
+                suspicion: '🔴 Alto',
+                description: 'Tiene la cadena nueva y el número de serie lijado "por razones de aerodinámica".'
+            },
+            {
+                id: 5,
+                name: 'Notebook Acer Aspire antiguo',
+                price: 120000,
+                category: 'electronica',
+                badge: 'Boleta: tampoco preguntamos',
+                state: 'Usado - Funciona',
+                location: 'Santiago',
+                image: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=500&q=80',
+                seller: 'TioCompu',
+                sellerRating: '4.5 (312)',
+                sellerAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80',
+                suspicion: '🟢 Bajo',
+                description: 'Viene con Windows XP instalado y una carpeta llena de presentaciones PowerPoint de 2008.'
+            },
+            {
+                id: 6,
+                name: 'Parlantes Logitech 2.1',
+                price: 30000,
+                category: 'electronica',
+                badge: 'Estado: funciona... creemos',
+                state: 'Usado - Buen estado',
+                location: 'La Serena',
+                image: 'https://images.unsplash.com/photo-1545454675-3531b543be5d?auto=format&fit=crop&w=500&q=80',
+                seller: 'SonidoRaro',
+                sellerRating: '4.3 (76)',
+                sellerAvatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=100&q=80',
+                suspicion: '🟢 Bajo',
+                description: 'Suenan increíblemente fuerte. A veces captan frecuencias de radio de taxis nocturnos.'
+            },
+            {
+                id: 7,
+                name: 'Televisor LG 32" LCD',
+                price: 80000,
+                category: 'electronica',
+                badge: 'Procedencia: no preguntamos',
+                state: 'Usado - Funciona',
+                location: 'Santiago',
+                image: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=500&q=80',
+                seller: 'ElectroTodo',
+                sellerRating: '4.6 (98)',
+                sellerAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80',
+                suspicion: '🟡 Moderado',
+                description: 'No incluye el control remoto. Se enciende tocando el botón lateral con un lápiz pasta.'
+            },
+            {
+                id: 8,
+                name: 'Figura Funko Pop misteriosa',
+                price: 18000,
+                category: 'coleccionables',
+                badge: 'Boleta: tampoco preguntamos',
+                state: 'Usado - En buen estado',
+                location: 'Rancagua',
+                image: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=500&q=80',
+                seller: 'ColeccionaRaro',
+                sellerRating: '4.8 (145)',
+                sellerAvatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=100&q=80',
+                suspicion: '🟢 Bajo',
+                description: 'No tiene caja. No estamos 100% seguros de qué personaje de película es.'
+            },
+            {
+                id: 9,
+                name: 'Taladro Black & Decker',
+                price: 35000,
+                category: 'herramientas',
+                badge: 'Procedencia: no preguntamos',
+                state: 'Usado - Funciona (creemos)',
+                location: 'Santiago',
+                image: 'https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=500&q=80',
+                seller: 'HerramientasPro',
+                sellerRating: '4.7 (92)',
+                sellerAvatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=100&q=80',
+                suspicion: '🔴 Alto',
+                description: 'Tiene marcado las iniciales "J.M." con pintura roja. El maletín cierra a la fuerza.'
+            },
+            {
+                id: 10,
+                name: 'Nintendo Switch',
+                price: 180000,
+                category: 'videojuegos',
+                badge: 'Estado: funciona... creemos',
+                state: 'Usado - Buen estado',
+                location: 'Puente Alto',
+                image: 'https://images.unsplash.com/photo-1578303512597-81e6cc155b3e?auto=format&fit=crop&w=500&q=80',
+                seller: 'Gamerocas',
+                sellerRating: '4.9 (220)',
+                sellerAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=100&q=80',
+                suspicion: '🟡 Moderado',
+                description: 'Tiene un sticker de Mario Bros tapando un pequeño raspón misterioso.'
+            }
+        ];
+
+        const deals = [
+            { id: 101, name: 'Audífonos Sony', originalPrice: 50000, price: 30000, discount: '-40%', location: 'Santiago', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=300&q=80' },
+            { id: 102, name: 'Silla de escritorio', originalPrice: 60000, price: 30000, discount: '-50%', location: 'Valparaíso', image: 'https://images.unsplash.com/photo-1580481072645-022f9a6d8310?auto=format&fit=crop&w=300&q=80' },
+            { id: 103, name: 'Smartwatch Huawei', originalPrice: 80000, price: 52000, discount: '-35%', location: 'Santiago', image: 'https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?auto=format&fit=crop&w=300&q=80' },
+            { id: 104, name: 'Juegos PS4 (x4)', originalPrice: 40000, price: 32000, discount: '-20%', location: 'Concepción', image: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&w=300&q=80' },
+            { id: 105, name: 'Mini consola retro', originalPrice: 70000, price: 38000, discount: '-45%', location: 'La Serena', image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=300&q=80' }
+        ];
+
+        const hallazgos = [
+            {
+                title: 'Trofeo de Metal — 2004',
+                price: '$12.000',
+                badge: 'Misterio Total',
+                desc: '“Primer lugar en disciplina no especificada. El nombre del ganador está raspado a mano.”',
+                image: 'https://images.unsplash.com/photo-1578269174936-2709b6aeb913?auto=format&fit=crop&w=400&q=80'
+            },
+            {
+                title: 'Juego de Tres Llaves',
+                price: '$5.000',
+                badge: 'Etiqueta Sospechosa',
+                desc: '“Llevan un llavero de plástico verde que dice bien claro: NO USAR. No sabemos qué abren.”',
+                image: 'https://images.unsplash.com/photo-1582139329536-e7284fece509?auto=format&fit=crop&w=400&q=80'
+            },
+            {
+                title: 'Nintendo DS Lite',
+                price: '$25.000',
+                badge: 'Juego Atascado',
+                desc: '“Tiene un juego adentro en el Slot 1. Intentamos sacarlo pero se siente fijado con pegamento.”',
+                image: 'https://images.unsplash.com/photo-1566576721346-d4a376d17102?auto=format&fit=crop&w=400&q=80'
+            }
+        ];
+
+        const sellers = [
+            { name: 'ElPanaRetro', rating: '4.8 (124 ventas)', badge: 'Vendedor confiable-ish', time: 'Hace 3 años', location: 'Santiago', avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80' },
+            { name: 'TechMejito', rating: '4.6 (87 ventas)', badge: 'Nunca responde, pero envía', time: 'Hace 2 años', location: 'Valparaíso', avatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=100&q=80' },
+            { name: 'Gamerocas', rating: '4.9 (221 ventas)', badge: 'Tiene demasiadas consolas', time: 'Hace 4 años', location: 'Puente Alto', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=100&q=80' },
+            { name: 'TioCompu', rating: '4.5 (312 ventas)', badge: 'Vendedor confiable-ish', time: 'Hace 5 años', location: 'Santiago', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80' }
+        ];
+
+        let favorites = [];
+        let cart = [];
+        let activeCategory = 'all';
+        let activeModalProduct = null;
+
+        window.onload = function() {
+            renderCategories();
+            renderDropdownCategories();
+            renderProducts(products);
+            renderDeals();
+            renderHallazgos();
+            renderSellers();
+            populatePublishCategorySelect();
+            setupEyeTracker();
+        };
+
+        // Render Dropdown Categorías en el Header
+        function renderDropdownCategories() {
+            const list = document.getElementById('dropdownCategoriesList');
+            let html = `
+                <button onclick="selectCategoryFromDropdown('all')" class="w-full text-left px-4 py-2 text-xs font-bold text-zinc-800 hover:bg-zinc-100 flex items-center justify-between">
+                    <span>Todas las categorías</span>
+                    <i class="fa-solid fa-border-all text-zinc-400"></i>
+                </button>
+                <div class="h-px bg-zinc-200 my-1"></div>
+            `;
+
+            html += categories.map(cat => `
+                <button onclick="selectCategoryFromDropdown('${cat.id}')" class="w-full text-left px-4 py-2 text-xs font-semibold text-zinc-700 hover:bg-zinc-100 flex items-center justify-between">
+                    <span>${cat.name}</span>
+                    <i class="fa-solid ${cat.icon} text-zinc-400"></i>
+                </button>
+            `).join('');
+
+            list.innerHTML = html;
+        }
+
+        function toggleCategoryDropdown() {
+            const dropdown = document.getElementById('categoryDropdown');
+            const chevron = document.getElementById('dropdownChevron');
+            dropdown.classList.toggle('hidden');
+            chevron.classList.toggle('rotate-180');
+        }
+
+        function selectCategoryFromDropdown(catId) {
+            toggleCategoryDropdown();
+            filterByCategory(catId);
+            // Scroll suave hasta la sección de productos
+            document.getElementById('productsGrid').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Cierra el desplegable si se hace click fuera de él
+        window.addEventListener('click', function(e) {
+            const btn = document.getElementById('categoryDropdownBtn');
+            const dropdown = document.getElementById('categoryDropdown');
+            if (btn && dropdown && !btn.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.add('hidden');
+                document.getElementById('dropdownChevron').classList.remove('rotate-180');
+            }
+        });
+
+        // Lógica del Asistente Virtual Reactivo ("El Sospechoso")
+        function toggleAssistant() {
+            const win = document.getElementById('assistantChatWindow');
+            win.classList.toggle('hidden');
+            setTimeout(() => {
+                win.classList.toggle('opacity-0');
+                win.classList.toggle('translate-y-4');
+            }, 10);
+            animatePupilsLookAtCenter();
+        }
+
+        function handleAssistantSubmit(e) {
+            e.preventDefault();
+            const input = document.getElementById('assistantInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            // Mostrar mensaje del usuario
+            addAssistantMessage(msg, 'user');
+            input.value = '';
+
+            // Mover pupilas al responder
+            animatePupilsThinking();
+
+            setTimeout(() => {
+                generateAssistantResponse(msg);
+            }, 800);
+        }
+
+        function addAssistantMessage(text, sender) {
+            const container = document.getElementById('assistantMessages');
+            const isUser = sender === 'user';
+            
+            const msgDiv = document.createElement('div');
+            msgDiv.className = isUser 
+                ? "bg-zinc-200 text-black p-3 rounded-2xl rounded-tr-none font-semibold shadow-sm max-w-[85%] ml-auto leading-relaxed"
+                : "bg-black text-white p-3 rounded-2xl rounded-tl-none font-semibold shadow-sm max-w-[85%] leading-relaxed";
+            
+            msgDiv.innerText = text;
+            container.appendChild(msgDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+function generateAssistantResponse(query) {
+            const q = query.toLowerCase();
+            let reply = "";
+
+            // --- SALUDOS Y DUDAS GENERALES ---
+            if (q.includes('hola') || q.includes('buenas') || q.includes('que tal')) {
+                reply = "Hola. No hables muy fuerte ni hagas movimientos bruscos. ¿Buscando algo en particular o solo finges que trabajas?";
+            } 
+            else if (q.includes('quien eres') || q.includes('quien sos') || q.includes('tu nombre')) {
+                reply = "Soy El Sospechoso. El sujeto que te observa desde que llegaste. Mi trabajo es asegurarme de que compres cosas raras sin hacer preguntas incómodas.";
+            }
+            else if (q.includes('descuento') || q.includes('oferta') || q.includes('barato') || q.includes('ganga')) {
+                reply = "Si quieres precios sospechosamente bajos, te filtré las ofertas activas. Si el precio no tiene sentido, no investigues y paga rápido.";
+                filterDealsOnly();
+            }
+            else if (q.includes('garantia') || q.includes('boleta') || q.includes('factura') || q.includes('devolucion')) {
+                reply = "JAJAJA... ¿Boleta? ¿Garantía? Amigo, aquí te entregamos la caja y ambos fingimos que nunca nos hemos visto en la vida.";
+            }
+
+            // --- PALABRAS CLAVE DE PRODUCTOS ESPECÍFICOS ---
+            else if (q.includes('playstation') || q.includes('ps1') || q.includes('play') || q.includes('consola')) {
+                reply = "Ah, la PS1. Prende a la primera si la pones a 45 grados. Trae un CD marcado con plumón que dice 'FINAL 100%'. No me preguntes de qué es el juego.";
+                handleSearch({ target: { value: 'playstation' } });
+            }
+            else if (q.includes('monitor') || q.includes('samsung') || q.includes('crt') || q.includes('pantalla')) {
+                reply = "Ese monitor CRT pesa como 15 kilos y emite un zumbido estilo año 2002 reconfortante. Si no te sirve para la PC, sirve como ancla.";
+                handleSearch({ target: { value: 'monitor' } });
+            }
+            else if (q.includes('canon') || q.includes('camara') || q.includes('fotos') || q.includes('fotografia')) {
+                reply = "La Canon PowerShot toma fotos estética Y2K hermosas. Trae una tarjeta SD con 3 fotos de un perro que nadie conoce. Favor no borrar al perro.";
+                handleSearch({ target: { value: 'canon' } });
+            }
+            else if (q.includes('bici') || q.includes('bicicleta') || q.includes('cicla')) {
+                reply = "Tiene la cadena impecable y el número de serie borrado con lija por 'razones de aerodinámica'. Anda rápido, por si necesitas salir apurado.";
+                handleSearch({ target: { value: 'bicicleta' } });
+            }
+            else if (q.includes('acer') || q.includes('notebook') || q.includes('laptop') || q.includes('computador')) {
+                reply = "Viene con Windows XP y una carpeta llena de PowerPoints de 2008 sobre el calentamiento global. Funciona, pero no le pidas milagros.";
+                handleSearch({ target: { value: 'notebook' } });
+            }
+            else if (q.includes('logitech') || q.includes('parlantes') || q.includes('altavoces') || q.includes('audio')) {
+                reply = "Suenan increíblemente fuerte. A veces, a eso de las 3 AM, captan la frecuencia de radio de taxis nocturnos. Considéralo una función extra.";
+                handleSearch({ target: { value: 'logitech' } });
+            }
+            else if (q.includes('televisor') || q.includes('tele') || q.includes('tv') || q.includes('lg')) {
+                reply = "No tiene control remoto, pero se enciende enterrándole un lápiz pasta en el botón lateral. Construcción robusta a la antigua.";
+                handleSearch({ target: { value: 'televisor' } });
+            }
+            else if (q.includes('funko') || q.includes('pop') || q.includes('figura') || q.includes('muñeco')) {
+                reply = "No tiene caja y no estamos 100% seguros de qué personaje es, pero te observa con la misma indiferencia que yo.";
+                handleSearch({ target: { value: 'funko' } });
+            }
+            else if (q.includes('taladro') || q.includes('black') || q.includes('decker')) {
+                reply = "Tiene las iniciales 'J.M.' marcadas con pintura roja. El maletín cierra a la fuerza, pero perfora lo que sea sin rechistar.";
+                handleSearch({ target: { value: 'taladro' } });
+            }
+            else if (q.includes('switch') || q.includes('nintendo switch')) {
+                reply = "Tiene un sticker de Mario tapando un raspón de origen misterioso. Fuera de eso, corre el Zelda perfecto.";
+                handleSearch({ target: { value: 'switch' } });
+            }
+
+            // --- PALABRAS CLAVE DE CATEGORÍAS ---
+            else if (q.includes('electronica') || q.includes('gadgets') || q.includes('cables')) {
+                reply = "Filtrando Electrónica. Objetos que prenden luces, hacen zumbidos y probablemente sobrevivirán al apocalipsis.";
+                filterByCategory('electronica');
+            }
+            else if (q.includes('videojuegos') || q.includes('juegos') || q.includes('gaming')) {
+                reply = "Categoría Videojuegos cargada. Todo probado... al menos durante 5 minutos antes de empacarlo.";
+                filterByCategory('videojuegos');
+            }
+            else if (q.includes('herramientas') || q.includes('taller')) {
+                reply = "Herramientas listas. Pesadas, usadas, con marcas de combate. Ideales para proyectos de los que nadie debe enterarse.";
+                filterByCategory('herramientas');
+            }
+            else if (q.includes('muebles') || q.includes('silla') || q.includes('casa')) {
+                reply = "Muebles y cosas para el hogar. Tienen historia, estilo y probablemente algún secreto guardado entre los tapizados.";
+                filterByCategory('muebles');
+            }
+            else if (q.includes('coleccionables') || q.includes('antiguedades') || q.includes('raro')) {
+                reply = "Objetos de colección. Cosas que la gente normal tiraría a la basura pero que tú y yo sabemos que valen oro.";
+                filterByCategory('coleccionables');
+            }
+            else if (q.includes('quien sabe') || q.includes('misterio') || q.includes('azar') || q.includes('extraño')) {
+                reply = "Ah... la sección 'Quién Sabe'. Cosas que aparecieron de la nada y nadie quiere dar explicaciones. Revisa bajo tu propio riesgo.";
+                filterByCategory('quien-sabe');
+            }
+
+            // --- BÚSQUEDA GENÉRICA / SIN COINCIDENCIAS DIRECTAS ---
+            else {
+                reply = `Mmm, "${query}"... qué específico. Ya busqué en los estantes del fondo. Si hay algo relacionado, apareció en la pantalla.`;
+                document.getElementById('headerSearch').value = query;
+                handleSearch({ target: { value: query } });
+            }
+
+            addAssistantMessage(reply, 'assistant');
+        }
+// Lógica de Movimiento EXAGERADO y NOTORIO para Ojos Semicirculares
+        function setupEyeTracker() {
+            document.addEventListener('mousemove', (e) => {
+                const eyesContainer = document.getElementById('eyesContainer');
+                if (!eyesContainer) return;
+
+                const button = document.getElementById('assistantButton');
+                const rect = button.getBoundingClientRect();
+                const btnX = rect.left + rect.width / 2;
+                const btnY = rect.top + rect.height / 2;
+
+                // Calcula distancia y ángulo respecto al cursor
+                const angle = Math.atan2(e.clientY - btnY, e.clientX - btnX);
+                
+                // Se aumentó el rango límite a 12px (antes 3px) y la sensibilidad del mouse
+                const distance = Math.min(12, Math.hypot(e.clientX - btnX, e.clientY - btnY) / 20);
+
+                const moveX = Math.cos(angle) * distance;
+                const moveY = Math.sin(angle) * distance;
+
+                // Desplazamiento amplio de ambos ojos
+                eyesContainer.style.transform = `translate(${moveX}px, ${moveY}px)`;
+            });
+        }
+
+        // Animación al responder / pensar (Movimiento brusco + parpadeo)
+        function animatePupilsThinking() {
+            const eyesContainer = document.getElementById('eyesContainer');
+            if(!eyesContainer) return;
+
+            let count = 0;
+            const interval = setInterval(() => {
+                // Inclinación y desplazamientos aleatorios más amplios (-10px a 10px)
+                const randX = (Math.random() - 0.5) * 20;
+                const randY = (Math.random() - 0.5) * 20;
+                const rot = (count % 2 === 0) ? -12 : 12;
+
+                // Parpadeo achatado
+                eyesContainer.style.transform = `scaleY(0.1)`; 
+                
+                setTimeout(() => {
+                    eyesContainer.style.transform = `translate(${randX}px, ${randY}px) rotate(${rot}deg) scaleY(1)`;
+                }, 70);
+
+                count++;
+                if (count > 5) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        eyesContainer.style.transform = `translate(0px, 0px) rotate(0deg) scaleY(1)`;
+                    }, 120);
+                }
+            }, 150);
+        }
+
+
+        // Renderizado general
+        function renderCategories() {
+            const container = document.getElementById('categoriesContainer');
+            container.innerHTML = categories.map(cat => `
+                <button onclick="filterByCategory('${cat.id}')" 
+                    class="flex flex-col items-center justify-center p-4 bg-white border border-zinc-200 rounded-2xl hover:border-black transition-all ${cat.highlight ? 'bg-zinc-100 border-dashed border-zinc-400' : ''}">
+                    <div class="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center mb-2 text-black text-lg">
+                        <i class="fa-solid ${cat.icon}"></i>
+                    </div>
+                    <span class="text-xs font-bold text-black text-center font-oxanium">${cat.name}</span>
+                </button>
+            `).join('');
+        }
+
+        function renderProducts(items) {
+            const container = document.getElementById('productsGrid');
+            if(items.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full py-12 text-center text-zinc-500 font-semibold">
+                        <i class="fa-solid fa-ghost text-4xl mb-3 block"></i>
+                        <p class="font-bold">No apareció nada con esa búsqueda.</p>
+                        <p class="text-xs">Prueba buscando algo más común o revisa más tarde.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = items.map(p => {
+                const isFav = favorites.includes(p.id);
+                return `
+                <div class="bg-white border border-zinc-200 rounded-2xl p-3 flex flex-col justify-between card-hover relative group">
+                    <button onclick="toggleFavorite(event, ${p.id})" class="absolute top-5 right-5 z-10 w-8 h-8 rounded-full bg-white/90 backdrop-blur flex items-center justify-center text-zinc-700 hover:text-red-500 shadow-sm transition-all">
+                        <i class="${isFav ? 'fa-solid text-red-500' : 'fa-regular'} fa-bookmark"></i>
+                    </button>
+
+                    <div>
+                        <div onclick="openProductModal(${p.id})" class="aspect-square bg-zinc-100 rounded-xl overflow-hidden relative cursor-pointer mb-3">
+                            <img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                            
+                            <div class="absolute top-2 left-2 bg-black text-white text-[9px] font-bold px-2 py-0.5 rounded tracking-wide uppercase font-oxanium">
+                                ${p.badge}
+                            </div>
+                        </div>
+
+                        <div onclick="openProductModal(${p.id})" class="cursor-pointer space-y-1">
+                            <h3 class="font-display text-sm text-black line-clamp-1">${p.name}</h3>
+                            <div class="font-display text-base text-black">$${p.price.toLocaleString('es-CL')}</div>
+                            <div class="text-[11px] text-zinc-500 flex items-center gap-1 font-semibold">
+                                <span>${p.state}</span>
+                            </div>
+                            <div class="text-[10px] text-zinc-400 flex items-center gap-1 font-semibold">
+                                <i class="fa-solid fa-location-dot text-[9px]"></i>
+                                <span>${p.location}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 pt-2 border-t border-zinc-100 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <img src="${p.sellerAvatar}" alt="${p.seller}" class="w-5 h-5 rounded-full object-cover">
+                            <span class="text-[11px] font-bold text-zinc-700 truncate max-w-[80px]">${p.seller}</span>
+                        </div>
+                        <span class="text-[10px] text-amber-600 font-bold">★ ${p.sellerRating.split(' ')[0]}</span>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        function renderDeals() {
+            const container = document.getElementById('dealsGrid');
+            container.innerHTML = deals.map(d => `
+                <div onclick="showToast('Oferta especial cargada')" class="bg-zinc-800 border border-zinc-700 rounded-2xl p-3 cursor-pointer hover:border-zinc-500 transition-all">
+                    <div class="aspect-square bg-zinc-900 rounded-xl overflow-hidden relative mb-2">
+                        <img src="${d.image}" alt="${d.name}" class="w-full h-full object-cover opacity-90">
+                        <span class="absolute top-2 left-2 bg-red-600 text-white font-bold text-[10px] px-1.5 py-0.5 rounded font-oxanium">
+                            ${d.discount}
+                        </span>
+                    </div>
+                    <h4 class="font-bold text-xs text-white line-clamp-1 font-oxanium">${d.name}</h4>
+                    <div class="flex items-baseline gap-2 mt-1">
+                        <span class="font-display text-sm text-white">$${d.price.toLocaleString('es-CL')}</span>
+                        <span class="text-[10px] text-zinc-500 line-through font-semibold">$${d.originalPrice.toLocaleString('es-CL')}</span>
+                    </div>
+                    <span class="text-[9px] text-zinc-400 block mt-1 font-semibold"><i class="fa-solid fa-location-dot"></i> ${d.location}</span>
+                </div>
+            `).join('');
+        }
+
+        function renderHallazgos() {
+            const container = document.getElementById('hallazgosGrid');
+            container.innerHTML = hallazgos.map(h => `
+                <div class="bg-white border border-zinc-200 rounded-3xl p-5 shadow-sm space-y-3 flex flex-col justify-between">
+                    <div class="space-y-3">
+                        <div class="aspect-video bg-zinc-100 rounded-2xl overflow-hidden relative">
+                            <img src="${h.image}" alt="${h.title}" class="w-full h-full object-cover">
+                            <span class="absolute top-3 left-3 bg-black text-white text-[10px] font-bold px-2.5 py-1 rounded-full font-oxanium">
+                                ${h.badge}
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-start">
+                            <h3 class="font-display text-lg text-black">${h.title}</h3>
+                            <span class="font-display text-base bg-zinc-100 px-2.5 py-1 rounded-lg">${h.price}</span>
+                        </div>
+                        <p class="text-xs text-zinc-600 italic bg-zinc-50 p-3 rounded-xl border border-zinc-200 font-semibold">
+                            ${h.desc}
+                        </p>
+                    </div>
+                    <button onclick="showToast('Objeto raro guardado para inspección')" class="w-full bg-zinc-100 hover:bg-black hover:text-white font-bold text-xs py-2.5 rounded-xl transition-all">
+                        Echarle un vistazo →
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function renderSellers() {
+            const container = document.getElementById('sellersContainer');
+            container.innerHTML = sellers.map(s => `
+                <div class="p-3 bg-zinc-50 border border-zinc-200 rounded-2xl flex items-center gap-3">
+                    <img src="${s.avatar}" class="w-10 h-10 rounded-full object-cover border border-zinc-300">
+                    <div class="space-y-0.5">
+                        <h4 class="font-bold text-xs text-black font-oxanium">${s.name}</h4>
+                        <span class="inline-block bg-zinc-200 text-zinc-800 text-[9px] font-bold px-1.5 py-0.5 rounded font-oxanium">${s.badge}</span>
+                        <div class="text-[10px] text-zinc-500 font-semibold">★ ${s.rating} • ${s.location}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function populatePublishCategorySelect() {
+            const select = document.getElementById('publishCategorySelect');
+            select.innerHTML = categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        }
+
+        function filterByCategory(catId) {
+            activeCategory = catId;
+            const label = document.getElementById('currentFilterLabel');
+            
+            if (catId === 'all') {
+                label.innerText = 'Todos';
+                renderProducts(products);
+            } else {
+                const matchedCat = categories.find(c => c.id === catId);
+                label.innerText = matchedCat ? matchedCat.name : catId;
+                const filtered = products.filter(p => p.category === catId);
+                renderProducts(filtered);
+            }
+        }
+
+        function filterDealsOnly() {
+            document.getElementById('currentFilterLabel').innerText = 'Ofertas Sospechosas';
+            const cheap = products.filter(p => p.price <= 50000);
+            renderProducts(cheap);
+        }
+
+        function resetFilters() {
+            filterByCategory('all');
+            document.getElementById('headerSearch').value = '';
+            document.getElementById('heroSearch').value = '';
+        }
+
+        function handleSearch(e) {
+            const query = e.target.value.toLowerCase().trim();
+            if(query === '') {
+                renderProducts(products);
+                return;
+            }
+            const filtered = products.filter(p => 
+                p.name.toLowerCase().includes(query) || 
+                p.description.toLowerCase().includes(query) ||
+                p.badge.toLowerCase().includes(query)
+            );
+            renderProducts(filtered);
+        }
+
+        function triggerSearch(inputId) {
+            const val = document.getElementById(inputId).value;
+            showToast(`Buscando: "${val || 'todo lo que haya'}"`);
+        }
+
+        function toggleFavorite(event, id) {
+            event.stopPropagation();
+            if (favorites.includes(id)) {
+                favorites = favorites.filter(favId => favId !== id);
+                showToast('Eliminado de favoritos');
+            } else {
+                favorites.push(id);
+                showToast('Guardado en favoritos discretos');
+            }
+            updateFavBadge();
+            renderProducts(activeCategory === 'all' ? products : products.filter(p => p.category === activeCategory));
+        }
+
+        function updateFavBadge() {
+            const badge = document.getElementById('favCountBadge');
+            if (favorites.length > 0) {
+                badge.innerText = favorites.length;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function toggleFavoritesView() {
+            if(favorites.length === 0) {
+                showToast('No tienes objetos guardados aún');
+                return;
+            }
+            const favProducts = products.filter(p => favorites.includes(p.id));
+            document.getElementById('currentFilterLabel').innerText = 'Mis Favoritos';
+            renderProducts(favProducts);
+        }
+
+        function openProductModal(id) {
+            const product = products.find(p => p.id === id);
+            if(!product) return;
+
+            activeModalProduct = product;
+            document.getElementById('modalImage').src = product.image;
+            document.getElementById('modalTitle').innerText = product.name;
+            document.getElementById('modalPrice').innerText = `$${product.price.toLocaleString('es-CL')}`;
+            document.getElementById('modalBadge').innerText = product.badge;
+            document.getElementById('modalState').innerText = product.state;
+            document.getElementById('modalLocation').innerText = product.location;
+            document.getElementById('modalSeller').innerText = product.seller;
+            document.getElementById('modalDescription').innerText = `"${product.description}"`;
+            document.getElementById('modalCategory').innerText = product.category.toUpperCase();
+            document.getElementById('modalSuspicionLevel').innerText = `Sospecha: ${product.suspicion}`;
+
+            openModal('productModal');
+        }
+
+        function addToCartFromModal() {
+            if(!activeModalProduct) return;
+            cart.push(activeModalProduct);
+            updateCartBadge();
+            closeModal('productModal');
+            showToast(`${activeModalProduct.name} agregado al carrito`);
+        }
+
+        function updateCartBadge() {
+            const badge = document.getElementById('cartCountBadge');
+            if (cart.length > 0) {
+                badge.innerText = cart.length;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function openCartModal() {
+            const list = document.getElementById('cartItemsList');
+            document.getElementById('cartItemCount').innerText = cart.length;
+
+            if(cart.length === 0) {
+                list.innerHTML = `
+                    <div class="text-center py-8 text-zinc-400 font-semibold">
+                        <i class="fa-solid fa-cart-arrow-down text-3xl mb-2"></i>
+                        <p class="text-xs">Tu carrito está completamente vacío.</p>
+                    </div>
+                `;
+                document.getElementById('cartTotalPrice').innerText = '$0';
+            } else {
+                let total = 0;
+                list.innerHTML = cart.map((item, index) => {
+                    total += item.price;
+                    return `
+                        <div class="flex items-center justify-between p-2.5 bg-zinc-50 border border-zinc-200 rounded-xl">
+                            <div class="flex items-center gap-3">
+                                <img src="${item.image}" class="w-10 h-10 rounded-lg object-cover">
+                                <div>
+                                    <h4 class="font-display text-xs text-black line-clamp-1">${item.name}</h4>
+                                    <span class="text-xs font-bold text-zinc-600 font-oxanium">$${item.price.toLocaleString('es-CL')}</span>
+                                </div>
+                            </div>
+                            <button onclick="removeFromCart(${index})" class="text-zinc-400 hover:text-red-500 text-xs p-1">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+                document.getElementById('cartTotalPrice').innerText = `$${total.toLocaleString('es-CL')}`;
+            }
+
+            openModal('cartModal');
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartBadge();
+            openCartModal();
+        }
+
+        function checkoutCart() {
+            if(cart.length === 0) {
+                showToast('Agrega algo al carrito primero');
+                return;
+            }
+            cart = [];
+            updateCartBadge();
+            closeModal('cartModal');
+            showToast('¡Compra realizada! No hagas preguntas sobre el paquete.');
+        }
+
+        function handlePublishForm(e) {
+            e.preventDefault();
+            closeModal('publishModal');
+            showToast('Objeto publicado exitosamente en la sección misteriosa');
+        }
+
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                const card = modal.querySelector('#productModalCard') || modal.querySelector('#cartModalContent') || modal.firstElementChild;
+                if(card) {
+                    card.classList.remove('scale-95', 'translate-x-full');
+                }
+            }, 10);
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.add('opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').innerText = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
